@@ -4,10 +4,10 @@
 #include "php_phalcon.h"
 #include "kernel/memory.h"
 
-char* __zend_filename = __FILE__;
-char* __zend_orig_filename = __FILE__;
-int __zend_lineno = 0;
-int __zend_orig_lineno = 0;
+static char* __zend_filename = __FILE__;
+static char* __zend_orig_filename = __FILE__;
+static int __zend_lineno = 0;
+static int __zend_orig_lineno = 0;
 
 void test_phalcon_alloc_zval(void)
 {

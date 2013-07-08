@@ -406,3 +406,101 @@ void test_phalcon_separate(void)
 	shutdown_php();
 	CU_ASSERT_EQUAL(leaks, 0);
 }
+
+void test_phalcon_separate_nmo(void)
+{
+	startup_php(__func__);
+	zend_first_try {
+		zval* total_pages;
+		zval* orig;
+
+		PHALCON_MM_GROW();
+			PHALCON_INIT_VAR(total_pages);
+			ZVAL_LONG(total_pages, 100);
+
+			orig = total_pages;
+			Z_ADDREF_P(total_pages);
+
+			PHALCON_SEPARATE_NMO(total_pages);
+			ZVAL_LONG(total_pages, Z_LVAL_P(total_pages) + 1);
+
+			CU_ASSERT_EQUAL(Z_LVAL_P(total_pages), 101);
+			CU_ASSERT_EQUAL(Z_LVAL_P(orig), 100);
+			CU_ASSERT_EQUAL(Z_REFCOUNT_P(total_pages), 1);
+
+		PHALCON_MM_RESTORE();
+
+		CU_ASSERT_EQUAL(_mem_block_check(orig, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
+		CU_ASSERT_EQUAL(Z_LVAL_P(orig), 100);
+		CU_ASSERT_EQUAL(Z_REFCOUNT_P(orig), 1);
+
+		zval_ptr_dtor(&orig);
+	}
+	zend_catch {
+		CU_ASSERT(0);
+	}
+	zend_end_try();
+
+	shutdown_php();
+	CU_ASSERT_EQUAL(leaks, 0);
+}
+
+void test_phalcon_separate_param(void)
+{
+	startup_php(__func__);
+	zend_first_try {
+		zval* x;
+		zval* orig;
+
+		PHALCON_MM_GROW();
+			MAKE_STD_ZVAL(x);
+			ZVAL_LONG(x, 0xB61964F6l);
+			Z_ADDREF_P(x);
+			Z_ADDREF_P(x);
+			Z_ADDREF_P(x);
+			orig = x;
+
+			CU_ASSERT_EQUAL(Z_REFCOUNT_P(x), 4);
+			CU_ASSERT_EQUAL(Z_ISREF_P(x), 0);
+
+			PHALCON_SEPARATE_PARAM(x);
+
+			CU_ASSERT_EQUAL(Z_REFCOUNT_P(x), 1);
+			CU_ASSERT_EQUAL(Z_ISREF_P(x), 0);
+			CU_ASSERT_PTR_NOT_EQUAL(x, orig);
+			CU_ASSERT_EQUAL(Z_REFCOUNT_P(orig), 4);
+			CU_ASSERT_EQUAL(Z_ISREF_P(orig), 0);
+
+			CU_ASSERT_EQUAL(Z_TYPE_P(x), IS_LONG);
+			CU_ASSERT_EQUAL(Z_LVAL_P(x), 0xB61964F6l);
+
+			CU_ASSERT_EQUAL(Z_TYPE_P(x), Z_TYPE_P(orig));
+			CU_ASSERT_EQUAL(Z_LVAL_P(x), Z_LVAL_P(orig));
+
+			zval_ptr_dtor(&orig);
+			CU_ASSERT_EQUAL(_mem_block_check(x, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
+			CU_ASSERT_EQUAL(_mem_block_check(orig, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
+			CU_ASSERT_EQUAL(Z_REFCOUNT_P(orig), 3);
+
+			zval_ptr_dtor(&orig);
+			CU_ASSERT_EQUAL(_mem_block_check(x, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
+			CU_ASSERT_EQUAL(_mem_block_check(orig, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
+			CU_ASSERT_EQUAL(Z_REFCOUNT_P(orig), 2);
+
+			zval_ptr_dtor(&orig);
+			CU_ASSERT_EQUAL(_mem_block_check(x, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
+			CU_ASSERT_EQUAL(_mem_block_check(orig, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
+			CU_ASSERT_EQUAL(Z_REFCOUNT_P(orig), 1);
+
+			zval_ptr_dtor(&orig);
+			CU_ASSERT_EQUAL(_mem_block_check(x, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
+		PHALCON_MM_RESTORE();
+	}
+	zend_catch {
+		CU_ASSERT(0);
+	}
+	zend_end_try();
+
+	shutdown_php();
+	CU_ASSERT_EQUAL(leaks, 0);
+}

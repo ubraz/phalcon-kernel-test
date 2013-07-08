@@ -11,5 +11,7 @@ void test_phalcon_cpy_wrt_ctor(void);
 void test_phalcon_obs_var(void);
 void test_phalcon_obs_nvar(void);
 void test_phalcon_separate(void);
+void test_phalcon_separate_nmo(void);
+void test_phalcon_separate_param(void);
 
 #endif /* TEST_MEMORY_H_ */

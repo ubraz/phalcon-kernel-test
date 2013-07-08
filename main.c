@@ -16,6 +16,8 @@ int main(int argc, char** argv)
 	CU_ADD_TEST(suite_memory, test_phalcon_obs_var);
 	CU_ADD_TEST(suite_memory, test_phalcon_obs_nvar);
 	CU_ADD_TEST(suite_memory, test_phalcon_separate);
+	CU_ADD_TEST(suite_memory, test_phalcon_separate_nmo);
+	CU_ADD_TEST(suite_memory, test_phalcon_separate_param);
 
 	CU_basic_set_mode(CU_BRM_VERBOSE);
 	CU_basic_run_tests();

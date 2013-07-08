@@ -2,6 +2,7 @@
 #include <CUnit/Basic.h>
 #include "test_assert.h"
 #include "test_memory.h"
+#include "test_variables.h"
 
 int main(int argc, char** argv)
 {
@@ -23,6 +24,10 @@ int main(int argc, char** argv)
 
 	CU_pSuite suite_assert = CU_add_suite("Assert", setup_assert, teardown_assert);
 	CU_ADD_TEST(suite_assert, test_phalcon_assert_class);
+
+	CU_pSuite suite_variables = CU_add_suite("Variables", NULL, NULL);
+	CU_ADD_TEST(suite_variables, test_phalcon_serialize);
+	CU_ADD_TEST(suite_variables, test_phalcon_unserialize);
 
 	CU_basic_set_mode(CU_BRM_VERBOSE);
 	CU_basic_run_tests();

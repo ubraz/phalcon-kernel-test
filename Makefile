@@ -1,7 +1,7 @@
 CC        = gcc
 PHPCONFIG = $(shell phpenv which php-config)
 
-CFLAGS  += -I. $(shell $(PHPCONFIG) --includes)
+CFLAGS  += -I. $(shell $(PHPCONFIG) --includes) -O0 -g3
 LDFLAGS += -lcunit -L$(shell $(PHPCONFIG) --prefix)/lib -lphp5 -Wl,-rpath,$(shell $(PHPCONFIG) --prefix)/lib
 
 KERNEL_SOURCES = \

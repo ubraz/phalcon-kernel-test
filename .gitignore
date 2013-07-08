@@ -1,0 +1,5 @@
+*.o
+test-phalcon-kernel
+.cproject
+.project
+.settings

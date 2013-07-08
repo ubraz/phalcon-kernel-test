@@ -35,7 +35,8 @@ SOURCES = \
 	main.c \
 	extension.c \
 	embed.c \
-	test_memory.c
+	test_memory.c \
+	test_assert.c
 
 OBJS = $(patsubst %.c,%.o,$(SOURCES))
 

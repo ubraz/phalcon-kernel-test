@@ -6,6 +6,7 @@
 #include "kernel/memory.h"
 #include "kernel/assert.h"
 #include "kernel/debug.h"
+#include "test_assert.h"
 
 int setup_assert(void)
 {

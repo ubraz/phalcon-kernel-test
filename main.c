@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <CUnit/Basic.h>
+#include "test_array.h"
 #include "test_assert.h"
 #include "test_memory.h"
 #include "test_variables.h"
@@ -24,6 +25,11 @@ int main(int argc, char** argv)
 
 	CU_pSuite suite_assert = CU_add_suite("Assert", setup_assert, teardown_assert);
 	CU_ADD_TEST(suite_assert, test_phalcon_assert_class);
+
+	CU_pSuite suite_array = CU_add_suite("Array", NULL, NULL);
+	CU_ADD_TEST(suite_array, test_phalcon_array_unshift);
+	CU_ADD_TEST(suite_array, test_phalcon_array_values);
+	CU_ADD_TEST(suite_array, test_phalcon_array_key_exists);
 
 	CU_pSuite suite_variables = CU_add_suite("Variables", NULL, NULL);
 	CU_ADD_TEST(suite_variables, test_phalcon_serialize);

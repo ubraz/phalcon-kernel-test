@@ -35,8 +35,10 @@ SOURCES = \
 	main.c \
 	extension.c \
 	embed.c \
+	test_array.c \
+	test_assert.c \
 	test_memory.c \
-	test_assert.c
+	test_variables.c
 
 OBJS = $(patsubst %.c,%.o,$(SOURCES))
 

@@ -38,7 +38,8 @@ SOURCES = \
 	test_array.c \
 	test_assert.c \
 	test_memory.c \
-	test_variables.c
+	test_variables.c \
+	testbed.c
 
 OBJS = $(patsubst %.c,%.o,$(SOURCES))
 

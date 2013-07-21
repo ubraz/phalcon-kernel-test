@@ -24,6 +24,7 @@ KERNEL_SOURCES = \
 	kernel/persistent.c \
 	kernel/require.c \
 	kernel/string.c \
+	kernel/session.c \
 	kernel/variables.c \
 	kernel/alternative/fcall.c \
 	kernel/framework/orm.c \

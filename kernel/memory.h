@@ -38,7 +38,7 @@ extern int PHALCON_FASTCALL phalcon_clean_restore_stack(TSRMLS_D);
 
 /* Virtual symbol tables */
 extern void phalcon_create_symbol_table(TSRMLS_D);
-extern void phalcon_restore_symbol_table(TSRMLS_D);
+/*extern void phalcon_restore_symbol_table(TSRMLS_D);*/
 extern void phalcon_clean_symbol_tables(TSRMLS_D);
 
 /** Export symbols to active symbol table */
@@ -52,11 +52,7 @@ extern void PHALCON_FASTCALL phalcon_copy_ctor(zval *destiny, zval *origin);
 
 /* Memory macros */
 #define PHALCON_ALLOC_ZVAL(z) \
-	ALLOC_ZVAL(z); INIT_PZVAL(z); ZVAL_NULL(z);
-
-#define PHALCON_INIT_VAR_OLD(z) \
-	PHALCON_ALLOC_ZVAL(z); \
-	phalcon_memory_observe(&z TSRMLS_CC);
+	ALLOC_INIT_ZVAL(z);
 
 #define PHALCON_INIT_VAR(z) \
 	phalcon_memory_alloc(&z TSRMLS_CC);

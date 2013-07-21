@@ -17,6 +17,12 @@
   +------------------------------------------------------------------------+
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <ctype.h>
+
 #include "php.h"
 #include "php_phalcon.h"
 #include "php_main.h"
@@ -28,8 +34,12 @@
 #include "ext/standard/base64.h"
 #include "ext/standard/md5.h"
 
-#if HAVE_BUNDLED_PCRE
+#ifdef PHALCON_USE_PHP_PCRE
 #include "ext/pcre/php_pcre.h"
+#endif
+
+#ifdef PHALCON_USE_PHP_JSON
+#include "ext/json/php_json.h"
 #endif
 
 #include "kernel/main.h"
@@ -98,7 +108,7 @@ void phalcon_fast_join(zval *result, zval *glue, zval *pieces TSRMLS_DC){
 
 	if (Z_TYPE_P(glue) != IS_STRING || Z_TYPE_P(pieces) != IS_ARRAY) {
 		ZVAL_NULL(result);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for join()");
+		zend_error(E_WARNING, "Invalid arguments supplied for join()");
 		return;
 	}
 
@@ -118,11 +128,8 @@ void phalcon_append_printable_zval(smart_str *implstr, zval **tmp TSRMLS_DC) {
 			smart_str_appendl(implstr, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 			break;
 
-		case IS_LONG: {
-			char stmp[MAX_LENGTH_OF_LONG + 1];
-			str_len = slprintf(stmp, sizeof(stmp), "%ld", Z_LVAL_PP(tmp));
-			smart_str_appendl(implstr, stmp, str_len);
-		}
+		case IS_LONG:
+			smart_str_append_long(implstr, Z_LVAL_PP(tmp));
 			break;
 
 		case IS_BOOL:
@@ -211,14 +218,14 @@ void phalcon_fast_join_str(zval *return_value, char *glue, unsigned int glue_len
 /**
  * Convert dash/underscored texts returning camelized
  */
-void phalcon_camelize(zval *return_value, const zval *str TSRMLS_DC){
+void phalcon_camelize(zval *return_value, const zval *str){
 
 	unsigned int i;
 	smart_str camelize_str = {0};
 	char *marker, ch;
 
 	if (Z_TYPE_P(str) != IS_STRING) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for camelize()");
+		zend_error(E_WARNING, "Invalid arguments supplied for camelize()");
 		RETURN_EMPTY_STRING();
 		return;
 	}
@@ -263,14 +270,14 @@ void phalcon_camelize(zval *return_value, const zval *str TSRMLS_DC){
 /**
  * Convert dash/underscored texts returning camelized
  */
-void phalcon_uncamelize(zval *return_value, const zval *str TSRMLS_DC){
+void phalcon_uncamelize(zval *return_value, const zval *str){
 
 	unsigned int i;
 	smart_str uncamelize_str = {0};
 	char *marker, ch;
 
 	if (Z_TYPE_P(str) != IS_STRING) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for camelize()");
+		zend_error(E_WARNING, "Invalid arguments supplied for camelize()");
 		return;
 	}
 
@@ -302,11 +309,11 @@ void phalcon_uncamelize(zval *return_value, const zval *str TSRMLS_DC){
 /**
  * Fast call to explode php function
  */
-void phalcon_fast_explode(zval *result, zval *delimiter, zval *str TSRMLS_DC){
+void phalcon_fast_explode(zval *result, zval *delimiter, zval *str){
 
 	if (Z_TYPE_P(str) != IS_STRING || Z_TYPE_P(delimiter) != IS_STRING) {
 		ZVAL_NULL(result);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for explode()");
+		zend_error(E_WARNING, "Invalid arguments supplied for explode()");
 		return;
 	}
 
@@ -317,13 +324,13 @@ void phalcon_fast_explode(zval *result, zval *delimiter, zval *str TSRMLS_DC){
 /**
  * Fast call to explode php function
  */
-void phalcon_fast_explode_str(zval *result, const char *delimiter, int delimiter_length, zval *str TSRMLS_DC){
+void phalcon_fast_explode_str(zval *result, const char *delimiter, int delimiter_length, zval *str){
 
 	zval delimiter_zval;
 
 	if (Z_TYPE_P(str) != IS_STRING) {
 		ZVAL_NULL(result);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for explode()");
+		zend_error(E_WARNING, "Invalid arguments supplied for explode()");
 		return;
 	}
 
@@ -336,12 +343,12 @@ void phalcon_fast_explode_str(zval *result, const char *delimiter, int delimiter
 /**
  * Check if a string is contained into another
  */
-int phalcon_memnstr(const zval *haystack, const zval *needle TSRMLS_DC) {
+int phalcon_memnstr(const zval *haystack, const zval *needle) {
 
 	char *found = NULL;
 
 	if (Z_TYPE_P(haystack) != IS_STRING || Z_TYPE_P(needle) != IS_STRING) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for memnstr()");
+		zend_error(E_WARNING, "Invalid arguments supplied for memnstr()");
 		return 0;
 	}
 
@@ -359,12 +366,12 @@ int phalcon_memnstr(const zval *haystack, const zval *needle TSRMLS_DC) {
 /**
  * Check if a string is contained into another
  */
-int phalcon_memnstr_str(const zval *haystack, char *needle, unsigned int needle_length TSRMLS_DC) {
+int phalcon_memnstr_str(const zval *haystack, char *needle, unsigned int needle_length) {
 
 	char *found = NULL;
 
 	if (Z_TYPE_P(haystack) != IS_STRING) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for memnstr()");
+		zend_error(E_WARNING, "Invalid arguments supplied for memnstr()");
 		return 0;
 	}
 
@@ -382,18 +389,19 @@ int phalcon_memnstr_str(const zval *haystack, char *needle, unsigned int needle_
 /**
  * Inmediate function resolution for strpos function
  */
-void phalcon_fast_strpos(zval *return_value, const zval *haystack, const zval *needle TSRMLS_DC) {
+void phalcon_fast_strpos(zval *return_value, const zval *haystack, const zval *needle) {
 
 	char *found = NULL;
 
 	if (Z_TYPE_P(haystack) != IS_STRING || Z_TYPE_P(needle) != IS_STRING) {
 		ZVAL_NULL(return_value);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for strpos()");
+		zend_error(E_WARNING, "Invalid arguments supplied for strpos()");
 		return;
 	}
 
 	if (!Z_STRLEN_P(needle)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Empty delimiter");
+		ZVAL_NULL(return_value);
+		zend_error(E_WARNING, "Empty delimiter");
 		return;
 	}
 
@@ -410,13 +418,13 @@ void phalcon_fast_strpos(zval *return_value, const zval *haystack, const zval *n
 /**
  * Inmediate function resolution for strpos function
  */
-void phalcon_fast_strpos_str(zval *return_value, const zval *haystack, char *needle, unsigned int needle_length TSRMLS_DC) {
+void phalcon_fast_strpos_str(zval *return_value, const zval *haystack, char *needle, unsigned int needle_length) {
 
 	char *found = NULL;
 
 	if (Z_TYPE_P(haystack) != IS_STRING) {
 		ZVAL_NULL(return_value);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for strpos()");
+		zend_error(E_WARNING, "Invalid arguments supplied for strpos()");
 		return;
 	}
 
@@ -433,14 +441,14 @@ void phalcon_fast_strpos_str(zval *return_value, const zval *haystack, char *nee
 /**
  * Inmediate function resolution for stripos function
  */
-void phalcon_fast_stripos_str(zval *return_value, zval *haystack, char *needle, unsigned int needle_length TSRMLS_DC) {
+void phalcon_fast_stripos_str(zval *return_value, zval *haystack, char *needle, unsigned int needle_length) {
 
 	char *found = NULL;
 	char *needle_dup, *haystack_dup;
 
 	if (Z_TYPE_P(haystack) != IS_STRING) {
 		ZVAL_NULL(return_value);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for stripos()");
+		zend_error(E_WARNING, "Invalid arguments supplied for stripos()");
 		return;
 	}
 
@@ -467,14 +475,14 @@ void phalcon_fast_stripos_str(zval *return_value, zval *haystack, char *needle, 
 /**
  * Inmediate function resolution for str_replace function
  */
-void phalcon_fast_str_replace(zval *return_value, zval *search, zval *replace, zval *subject TSRMLS_DC) {
+void phalcon_fast_str_replace(zval *return_value, zval *search, zval *replace, zval *subject) {
 
 	zval replace_copy, search_copy;
 	int copy_replace = 0, copy_search = 0;
 
 	if (Z_TYPE_P(subject) != IS_STRING) {
 		ZVAL_NULL(return_value);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for str_replace()");
+		zend_error(E_WARNING, "Invalid arguments supplied for str_replace()");
 		return;
 	}
 
@@ -969,15 +977,11 @@ int phalcon_spprintf(char **message, int max_len, char *format, ...)
 /**
  * Makes a substr like the PHP function. This function doesn't support negative lengths
  */
-void phalcon_substr(zval *return_value, zval *str, unsigned long from, unsigned long length TSRMLS_DC) {
+void phalcon_substr(zval *return_value, zval *str, unsigned long from, unsigned long length) {
 
 	if (Z_TYPE_P(str) != IS_STRING) {
 
-		if (Z_TYPE_P(str) == IS_NULL) {
-			RETURN_FALSE;
-		}
-
-		if (Z_TYPE_P(str) == IS_BOOL) {
+		if (Z_TYPE_P(str) == IS_NULL || Z_TYPE_P(str) == IS_BOOL) {
 			RETURN_FALSE;
 		}
 
@@ -985,7 +989,7 @@ void phalcon_substr(zval *return_value, zval *str, unsigned long from, unsigned 
 			RETURN_EMPTY_STRING();
 		}
 
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for phalcon_substr()");
+		zend_error(E_WARNING, "Invalid arguments supplied for phalcon_substr()");
 		RETURN_FALSE;
 	}
 
@@ -1095,7 +1099,7 @@ zval *phalcon_eol(int eol TSRMLS_DC) {
     if (eol) {
 	    ZVAL_STRING(local_eol, PHP_EOL, 1);
     } else {
-        ZVAL_STRING(local_eol, "", 1);
+        ZVAL_EMPTY_STRING(local_eol);
     }
 
     return local_eol;
@@ -1183,7 +1187,7 @@ void phalcon_md5(zval *return_value, zval *str) {
 	ZVAL_STRINGL(return_value, hexdigest, 32, 1);
 }
 
-#if HAVE_BUNDLED_PCRE
+#if PHALCON_USE_PHP_PCRE
 
 /**
  * Execute preg-match without function lookup in the PHP userland
@@ -1195,7 +1199,7 @@ void phalcon_preg_match(zval *return_value, zval *regex, zval *subject, zval *ma
 	pcre_cache_entry *pce;
 
 	if (Z_TYPE_P(regex) != IS_STRING) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for phalcon_preg_match()");
+		zend_error(E_WARNING, "Invalid arguments supplied for phalcon_preg_match()");
 		RETURN_FALSE;
 	}
 
@@ -1219,8 +1223,137 @@ void phalcon_preg_match(zval *return_value, zval *regex, zval *subject, zval *ma
 	php_pcre_match_impl(pce, Z_STRVAL_P(subject), Z_STRLEN_P(subject), return_value, matches, 0, 0, 0, 0 TSRMLS_CC);
 
 	if (use_copy) {
-		zval_dtor(subject);
+		zval_dtor(&copy);
 	}
 }
 
-#endif
+#else
+
+void phalcon_preg_match(zval *return_value, zval *regex, zval *subject, zval *matches TSRMLS_DC)
+{
+	zval *params[] = {
+		regex,
+		subject,
+		matches
+	};
+
+	phalcon_call_func_params_w(return_value, SL("preg_match"), (matches ? 3 : 2), params TSRMLS_CC);
+}
+
+#endif /* PHALCON_USE_PHP_PCRE */
+
+#ifdef PHALCON_USE_PHP_JSON
+
+void phalcon_json_encode(zval *return_value, zval *v, int opts TSRMLS_DC)
+{
+	smart_str buf = { NULL, 0, 0 };
+
+	php_json_encode(&buf, v, opts TSRMLS_CC);
+	smart_str_0(&buf);
+	ZVAL_STRINGL(return_value, buf.c, buf.len, 0);
+}
+
+void phalcon_json_decode(zval *return_value, zval *v, zend_bool assoc TSRMLS_DC)
+{
+	zval copy;
+	int use_copy = 0;
+
+	if (unlikely(Z_TYPE_P(v) != IS_STRING)) {
+		zend_make_printable_zval(v, &copy, &use_copy);
+		if (use_copy) {
+			v = &copy;
+		}
+	}
+
+	php_json_decode(return_value, Z_STRVAL_P(v), Z_STRLEN_P(v), assoc, 512 /* JSON_PARSER_DEFAULT_DEPTH */ TSRMLS_CC);
+
+	if (unlikely(use_copy)) {
+		zval_dtor(&copy);
+	}
+}
+
+#else
+
+void phalcon_json_encode(zval *return_value, zval *v, int opts TSRMLS_DC)
+{
+	zval *zopts;
+
+	ALLOC_INIT_ZVAL(zopts);
+	ZVAL_LONG(zopts, opts);
+
+	{
+		zval *params[2] = { v, zopts };
+		phalcon_call_func_params_w(return_value, ZEND_STRL("json_encode"), 2, params TSRMLS_CC);
+	}
+
+	zval_ptr_dtor(&zopts);
+}
+
+void phalcon_json_decode(zval *return_value, zval *v, zend_bool assoc TSRMLS_DC)
+{
+	zval *zassoc;
+
+	ALLOC_INIT_ZVAL(zassoc);
+	ZVAL_BOOL(zassoc, assoc);
+
+	{
+		zval *params[2] = { v, zassoc };
+		phalcon_call_func_params_w(return_value, ZEND_STRL("json_decode"), 2, params TSRMLS_CC);
+	}
+
+	zval_ptr_dtor(&zassoc);
+}
+
+#endif /* PHALCON_USE_PHP_JSON */
+
+void phalcon_lcfirst(zval *return_value, zval *s)
+{
+	zval copy;
+	int use_copy = 0;
+
+	if (unlikely(Z_TYPE_P(s) != IS_STRING)) {
+		zend_make_printable_zval(s, &copy, &use_copy);
+		if (use_copy) {
+			s = &copy;
+		}
+	}
+
+	if (!Z_STRLEN_P(s)) {
+		ZVAL_EMPTY_STRING(return_value);
+	}
+	else {
+		ZVAL_STRINGL(return_value, Z_STRVAL_P(s), Z_STRLEN_P(s), 1);
+		char *c = Z_STRVAL_P(return_value);
+		*c = tolower((unsigned char)*c);
+	}
+
+	if (unlikely(use_copy)) {
+		zval_dtor(&copy);
+	}
+}
+
+void phalcon_ucfirst(zval *return_value, zval *s)
+{
+	zval copy;
+	int use_copy = 0;
+
+	if (unlikely(Z_TYPE_P(s) != IS_STRING)) {
+		zend_make_printable_zval(s, &copy, &use_copy);
+		if (use_copy) {
+			s = &copy;
+		}
+	}
+
+	if (!Z_STRLEN_P(s)) {
+		ZVAL_EMPTY_STRING(return_value);
+	}
+	else {
+		ZVAL_STRINGL(return_value, Z_STRVAL_P(s), Z_STRLEN_P(s), 1);
+		char *c = Z_STRVAL_P(return_value);
+		*c = toupper((unsigned char)*c);
+	}
+
+	if (unlikely(use_copy)) {
+		zval_dtor(&copy);
+	}
+}

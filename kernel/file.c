@@ -330,16 +330,22 @@ void phalcon_file_get_contents(zval *return_value, zval *filename TSRMLS_DC)
 	php_stream_close(stream);
 }
 
+/**
+ * Writes a zval to a stream
+ */
 void phalcon_file_put_contents(zval *return_value, zval *filename, zval *data TSRMLS_DC)
 {
 	php_stream *stream;
-	int numbytes = 0;
+	int numbytes = 0, use_copy = 0;
 	zval *zcontext = NULL;
+	zval copy;
 	php_stream_context *context = NULL;
 
 	if (Z_TYPE_P(filename) != IS_STRING) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid arguments supplied for phalcon_file_put_contents()");
-		RETVAL_FALSE;
+		if (return_value) {
+			RETVAL_FALSE;
+		}
 		return;
 	}
 
@@ -347,7 +353,10 @@ void phalcon_file_put_contents(zval *return_value, zval *filename, zval *data TS
 
 	stream = php_stream_open_wrapper_ex(Z_STRVAL_P(filename), "wb", ((0 & PHP_FILE_USE_INCLUDE_PATH) ? USE_PATH : 0) | REPORT_ERRORS, NULL, context);
 	if (stream == NULL) {
-		RETURN_FALSE;
+		if (return_value) {
+			RETURN_FALSE;
+		}
+		return;
 	}
 
 	switch (Z_TYPE_P(data)) {
@@ -357,7 +366,11 @@ void phalcon_file_put_contents(zval *return_value, zval *filename, zval *data TS
 		case IS_DOUBLE:
 		case IS_BOOL:
 		case IS_CONSTANT:
-			convert_to_string_ex(&data);
+			zend_make_printable_zval(data, &copy, &use_copy);
+			if (use_copy) {
+				data = &copy;
+			}
+			/* no break */
 
 		case IS_STRING:
 			if (Z_STRLEN_P(data)) {
@@ -375,9 +388,20 @@ void phalcon_file_put_contents(zval *return_value, zval *filename, zval *data TS
 
 	php_stream_close(stream);
 
-	if (numbytes < 0) {
-		RETURN_FALSE;
+	if (use_copy) {
+		zval_dtor(data);
 	}
 
-	RETURN_LONG(numbytes);
+	if (numbytes < 0) {
+		if (return_value) {
+			RETURN_FALSE;
+		} else {
+			return;
+		}
+	}
+
+	if (return_value) {
+		RETURN_LONG(numbytes);
+	}
+	return;
 }

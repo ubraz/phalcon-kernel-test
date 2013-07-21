@@ -1,4 +1,3 @@
-
 /*
   +------------------------------------------------------------------------+
   | Phalcon Framework                                                      |
@@ -14,17 +13,16 @@
   +------------------------------------------------------------------------+
   | Authors: Andres Gutierrez <andres@phalconphp.com>                      |
   |          Eduar Carvajal <eduar@phalconphp.com>                         |
+  |          Vladimir Kolesnikov <vladimir@extrememember.com>              |
   +------------------------------------------------------------------------+
 */
 
-/* Executor Pointers */
-#ifdef ZTS
-# define PHALCON_EG(v) TSRMG(executor_globals_id, zend_executor_globals *, v)
-# define PHALCON_VEG ((zend_executor_globals *) (*((void ***) tsrm_ls))[TSRM_UNSHUFFLE_RSRC_ID(executor_globals_id)])
-#else
-# define PHALCON_EG(v) (executor_globals.v)
-# define PHALCON_VEG (&executor_globals)
-#endif
+#ifndef KERNEL_SESSION_H
+#define KERNEL_SESSION_H
 
-extern int phalcon_alt_call_user_method(zend_class_entry *ce, zval **object_pp, char *method_name, unsigned int method_len, zval *retval_ptr, zend_uint param_count, zval *params[], unsigned long method_key TSRMLS_DC);
-int phalcon_alt_call_method(zend_fcall_info *fci, zend_class_entry *ce, unsigned long hash_key, char *method_name, unsigned int method_len, unsigned long method_key TSRMLS_DC);
+void phalcon_session_start(TSRMLS_D);
+void phalcon_session_destroy(TSRMLS_D);
+void phalcon_get_session_id(zval *return_value TSRMLS_DC);
+void phalcon_set_session_id(zval *sid TSRMLS_DC);
+
+#endif /* KERNEL_SESSION_H */

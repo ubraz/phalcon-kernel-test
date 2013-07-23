@@ -45,10 +45,10 @@ extern void phalcon_camelize(zval *return_value, const zval *str);
 extern void phalcon_uncamelize(zval *return_value, const zval *str);
 
 /** Starts/Ends with */
-extern int phalcon_start_with(const zval *str, const zval *compared, zval *ignore_case);
+extern int phalcon_start_with(const zval *str, const zval *compared, zval *case_sensitive);
 extern int phalcon_start_with_str(const zval *str, char *compared, unsigned int compared_length);
 extern int phalcon_start_with_str_str(char *str, unsigned int str_length, char *compared, unsigned int compared_length);
-extern int phalcon_end_with(const zval *str, const zval *compared, zval *ignore_case);
+extern int phalcon_end_with(const zval *str, const zval *compared, zval *case_sensitive);
 extern int phalcon_end_with_str(const zval *str, char *compared, unsigned int compared_length);
 
 /** Random string */
@@ -86,4 +86,5 @@ void phalcon_json_decode(zval *return_value, zval *v, zend_bool assoc TSRMLS_DC)
 /***/
 void phalcon_lcfirst(zval *return_value, zval *s);
 void phalcon_ucfirst(zval *return_value, zval *s);
+int phalcon_http_build_query(zval *return_value, zval *params, char *sep TSRMLS_DC);
 

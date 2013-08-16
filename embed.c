@@ -7,6 +7,7 @@ void*** tsrm_ls;
 #endif
 
 zend_uint leaks;
+int memclean_called;
 
 void zend_message_dispatcher(long message, void* data TSRMLS_DC)
 {
@@ -38,7 +39,10 @@ void startup_php(const char* func)
 	php_embed_init(1, (char**)argv PTSRMLS_CC);
 
 	zend_startup_module(&phalcon_module_entry);
+	PG(report_memleaks) = 1;
+
 	leaks = 0;
+	memclean_called = 0;
 }
 
 void shutdown_php(void)

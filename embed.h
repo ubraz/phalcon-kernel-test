@@ -8,6 +8,7 @@ extern void*** tsrm_ls;
 #endif
 
 extern zend_uint leaks;
+extern int memclean_called;
 extern void zend_message_dispatcher(long message, void* data TSRMLS_DC);
 
 void startup_php(const char* func);

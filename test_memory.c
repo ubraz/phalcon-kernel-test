@@ -39,29 +39,6 @@ void test_phalcon_alloc_zval(void)
 	CU_ASSERT_EQUAL(leaks, 0);
 }
 
-void test_phalcon_alloc_zval_mm(void)
-{
-	startup_php(__func__);
-	zend_first_try {
-		zval* x;
-
-		PHALCON_MM_GROW();
-			PHALCON_ALLOC_ZVAL_MM(x);
-
-			CU_ASSERT_EQUAL(Z_REFCOUNT_P(x), 1);
-			CU_ASSERT_EQUAL(Z_ISREF_P(x), 0);
-			CU_ASSERT_EQUAL(Z_TYPE_P(x), IS_NULL);
-		PHALCON_MM_RESTORE();
-	}
-	zend_catch {
-		CU_ASSERT(0);
-	}
-	zend_end_try();
-
-	shutdown_php();
-	CU_ASSERT_EQUAL(leaks, 0);
-}
-
 void test_phalcon_init_var(void)
 {
 	startup_php(__func__);
@@ -71,7 +48,6 @@ void test_phalcon_init_var(void)
 
 		PHALCON_MM_GROW();
 			PHALCON_INIT_VAR(x);
-
 			CU_ASSERT_EQUAL(Z_REFCOUNT_P(x), 1);
 			CU_ASSERT_EQUAL(Z_ISREF_P(x), 0);
 			CU_ASSERT_EQUAL(Z_TYPE_P(x), IS_NULL);
@@ -298,13 +274,13 @@ void test_phalcon_obs_var(void)
 
 		PHALCON_MM_GROW();
 			PHALCON_OBS_VAR(x);
-			MAKE_STD_ZVAL(x);
+			ALLOC_INIT_ZVAL(x);
 
 			CU_ASSERT_EQUAL(Z_REFCOUNT_P(x), 1);
 			CU_ASSERT_EQUAL(Z_ISREF_P(x), 0);
 
 			PHALCON_OBS_VAR(y);
-			MAKE_STD_ZVAL(y);
+			ALLOC_INIT_ZVAL(y);
 			CU_ASSERT_EQUAL(Z_REFCOUNT_P(y), 1);
 			CU_ASSERT_EQUAL(Z_ISREF_P(y), 0);
 			Z_ADDREF_P(y);
@@ -332,13 +308,13 @@ void test_phalcon_obs_nvar(void)
 
 		PHALCON_MM_GROW();
 			PHALCON_OBS_NVAR(x);
-			MAKE_STD_ZVAL(x);
+			ALLOC_INIT_ZVAL(x);
 
 			CU_ASSERT_EQUAL(Z_REFCOUNT_P(x), 1);
 			CU_ASSERT_EQUAL(Z_ISREF_P(x), 0);
 
 			PHALCON_OBS_NVAR(x);
-			MAKE_STD_ZVAL(x);
+			ALLOC_INIT_ZVAL(x);
 
 			CU_ASSERT_EQUAL(Z_REFCOUNT_P(x), 1);
 			CU_ASSERT_EQUAL(Z_ISREF_P(x), 0);
@@ -395,44 +371,6 @@ void test_phalcon_separate(void)
 
 		zval_ptr_dtor(&orig);
 		CU_ASSERT_EQUAL(_mem_block_check(orig, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
-		CU_ASSERT_EQUAL(Z_REFCOUNT_P(orig), 1);
-
-		zval_ptr_dtor(&orig);
-	}
-	zend_catch {
-		CU_ASSERT(0);
-	}
-	zend_end_try();
-
-	shutdown_php();
-	CU_ASSERT_EQUAL(leaks, 0);
-}
-
-void test_phalcon_separate_nmo(void)
-{
-	startup_php(__func__);
-	zend_first_try {
-		zval* total_pages;
-		zval* orig;
-
-		PHALCON_MM_GROW();
-			PHALCON_INIT_VAR(total_pages);
-			ZVAL_LONG(total_pages, 100);
-
-			orig = total_pages;
-			Z_ADDREF_P(total_pages);
-
-			PHALCON_SEPARATE_NMO(total_pages);
-			ZVAL_LONG(total_pages, Z_LVAL_P(total_pages) + 1);
-
-			CU_ASSERT_EQUAL(Z_LVAL_P(total_pages), 101);
-			CU_ASSERT_EQUAL(Z_LVAL_P(orig), 100);
-			CU_ASSERT_EQUAL(Z_REFCOUNT_P(total_pages), 1);
-
-		PHALCON_MM_RESTORE();
-
-		CU_ASSERT_EQUAL(_mem_block_check(orig, 1 ZEND_FILE_LINE_RELAY_CC ZEND_FILE_LINE_ORIG_RELAY_CC), 1);
-		CU_ASSERT_EQUAL(Z_LVAL_P(orig), 100);
 		CU_ASSERT_EQUAL(Z_REFCOUNT_P(orig), 1);
 
 		zval_ptr_dtor(&orig);

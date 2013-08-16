@@ -12,7 +12,6 @@ int main(int argc, char** argv)
 
 	CU_pSuite suite_memory = CU_add_suite("Memory", NULL, NULL);
 	CU_ADD_TEST(suite_memory, test_phalcon_alloc_zval);
-	CU_ADD_TEST(suite_memory, test_phalcon_alloc_zval_mm);
 	CU_ADD_TEST(suite_memory, test_phalcon_init_var);
 	CU_ADD_TEST(suite_memory, test_phalcon_init_nvar);
 	CU_ADD_TEST(suite_memory, test_phalcon_init_nvar_pnull);
@@ -21,7 +20,6 @@ int main(int argc, char** argv)
 	CU_ADD_TEST(suite_memory, test_phalcon_obs_var);
 	CU_ADD_TEST(suite_memory, test_phalcon_obs_nvar);
 	CU_ADD_TEST(suite_memory, test_phalcon_separate);
-	CU_ADD_TEST(suite_memory, test_phalcon_separate_nmo);
 	CU_ADD_TEST(suite_memory, test_phalcon_separate_param);
 
 	CU_pSuite suite_assert = CU_add_suite("Assert", setup_assert, teardown_assert);

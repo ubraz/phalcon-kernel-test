@@ -94,4 +94,3 @@ zend_module_entry phalcon_module_entry = {
 	NULL,
 	STANDARD_MODULE_PROPERTIES_EX
 };
-

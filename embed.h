@@ -9,8 +9,13 @@ extern void*** tsrm_ls;
 
 extern zend_uint leaks;
 extern int memclean_called;
-extern void zend_message_dispatcher(long message, void* data TSRMLS_DC);
+#if PHP_VERSION_ID < 50400
+ZEND_API void zend_message_dispatcher(long message, void* data TSRMLS_DC);
+#else
+ZEND_API void zend_message_dispatcher(long message, const void* data TSRMLS_DC);
+#endif
 
+void initialize_embed_wrapper(void);
 void startup_php(const char* func);
 void shutdown_php(void);
 

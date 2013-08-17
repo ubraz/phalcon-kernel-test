@@ -395,11 +395,19 @@ int call_internal_function(zval* return_value, const char* func, uint func_len, 
 
 		ZEND_VM_STACK_GROW_IF_NEEDED(pcnt + 1);
 		for (i=0; i<pcnt; ++i) {
+#if PHP_VERSION_ID < 50500
 			zend_vm_stack_push_nocheck(params[i] TSRMLS_CC);
+#else
+			zend_vm_stack_push(params[i] TSRMLS_CC);
+#endif
 		}
 
 		EX(function_state).arguments = zend_vm_stack_top(TSRMLS_C);
+#if PHP_VERSION_ID < 50500
 		zend_vm_stack_push_nocheck((void*)(zend_uintptr_t)pcnt TSRMLS_CC);
+#else
+		zend_vm_stack_push((void*)(zend_uintptr_t)pcnt TSRMLS_CC);
+#endif
 
 		current_scope        = EG(scope);
 		current_called_scope = EG(called_scope);
@@ -413,7 +421,11 @@ int call_internal_function(zval* return_value, const char* func, uint func_len, 
 		EG(current_execute_data) = &execute_data;
 
 		function_handler->internal_function.handler(pcnt, return_value, NULL, NULL, 1 TSRMLS_CC);
+#if PHP_VERSION_ID < 50500
 		zend_vm_stack_clear_multiple(TSRMLS_C);
+#else
+		zend_vm_stack_clear_multiple(0 TSRMLS_CC);
+#endif
 
 		EG(called_scope)         = current_called_scope;
 		EG(scope)                = current_scope;
@@ -511,6 +523,7 @@ void test_unclean_shutdown(void)
 
 	CU_ASSERT_EQUAL(memclean_called, 0);
 	CU_ASSERT_EQUAL(PG(report_memleaks), 1);
+	CU_ASSERT_EQUAL(CG(unclean_shutdown), 1);
 	php_request_shutdown(NULL);
 	CU_ASSERT_EQUAL(memclean_called, 1);
 	CU_ASSERT_EQUAL(leaks, 0);

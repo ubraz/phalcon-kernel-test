@@ -41,6 +41,8 @@ int main(int argc, char** argv)
 	CU_ADD_TEST(suite_testbed, test_exceptions);
 	CU_ADD_TEST(suite_testbed, test_unclean_shutdown);
 
+	initialize_embed_wrapper();
+
 	CU_basic_set_mode(CU_BRM_VERBOSE);
 	CU_basic_run_tests();
 

@@ -1,4 +1,3 @@
-CC        = gcc
 PHPCONFIG = $(shell phpenv which php-config)
 
 CFLAGS  += -I. $(shell $(PHPCONFIG) --includes) -O0 -g3 -std=gnu99

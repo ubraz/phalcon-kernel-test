@@ -1,6 +1,6 @@
 PHPCONFIG = $(shell phpenv which php-config)
 
-CFLAGS  += -I. $(shell $(PHPCONFIG) --includes) -Wall -std=gnu99
+CFLAGS  += -I. $(shell $(PHPCONFIG) --includes) -Wall
 LDFLAGS += -lcunit -L$(shell $(PHPCONFIG) --prefix)/lib -lphp5 -Wl,-rpath,$(shell $(PHPCONFIG) --prefix)/lib
 
 KERNEL_SOURCES = \
@@ -20,7 +20,6 @@ KERNEL_SOURCES = \
 	kernel/object.c \
 	kernel/operators.c \
 	kernel/output.c \
-	kernel/persistent.c \
 	kernel/require.c \
 	kernel/string.c \
 	kernel/session.c \

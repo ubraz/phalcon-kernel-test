@@ -1320,7 +1320,6 @@ int phalcon_create_instance_params(zval *return_value, const zval *class_name, z
 	int i, outcome;
 	zend_class_entry *ce;
 	long param_count;
-	zval **params_array;
 	HashPosition pos;
 	HashTable *params_hash;
 
@@ -1346,9 +1345,7 @@ int phalcon_create_instance_params(zval *return_value, const zval *class_name, z
 		param_count = zend_hash_num_elements(Z_ARRVAL_P(params));
 		if (param_count > 0) {
 			zval **item;
-			int use_heap;
 
-			//params_array = do_alloca(sizeof(zval *) * param_count, use_heap);
 			zval *params_array[10];
 
 			params_hash = Z_ARRVAL_P(params);
@@ -1361,8 +1358,6 @@ int phalcon_create_instance_params(zval *return_value, const zval *class_name, z
 			}
 
 			outcome = phalcon_call_method_params(NULL, NULL, return_value, SL("__construct"), zend_inline_hash_func(SS("__construct")) TSRMLS_CC, -param_count, params_array);
-			//free_alloca(params, use_heap);
-
 		} else {
 			outcome = phalcon_call_method_params(NULL, NULL, return_value, SL("__construct"), zend_inline_hash_func(SS("__construct")) TSRMLS_CC, 0);
 		}

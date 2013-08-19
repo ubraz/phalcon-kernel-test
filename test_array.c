@@ -180,7 +180,6 @@ void test_phalcon_array_key_exists(void)
 	startup_php(__func__);
 	zend_first_try {
 		zval* arr;
-		zval** tmp;
 		zval idx;
 
 		ALLOC_INIT_ZVAL(arr);

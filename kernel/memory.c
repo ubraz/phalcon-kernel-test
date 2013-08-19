@@ -132,7 +132,7 @@ static void phalcon_memory_restore_stack_common(zend_phalcon_globals *phalcon_gl
 	size_t i;
 	phalcon_memory_entry *prev, *active_memory;
 	phalcon_symbol_table *active_symbol_table;
-#ifdef ZEND_DEBUG
+#if ZEND_DEBUG
 	char* __zend_filename = __FILE__;
 	char* __zend_orig_filename = __FILE__;
 	int __zend_lineno = 0;

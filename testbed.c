@@ -84,8 +84,6 @@ void test_phalcon_mvc_router_route__construct(void)
 {
 	startup_php(__func__);
 	zend_first_try {
-		zval* y = NULL;
-		zval* z;
 		zval** a;
 		zval** b;
 

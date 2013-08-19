@@ -1,5 +1,6 @@
 #include <CUnit/CUnit.h>
 #include <main/php.h>
+#include <main/php_main.h>
 #include <main/SAPI.h>
 #include <Zend/zend_exceptions.h>
 #include "embed.h"

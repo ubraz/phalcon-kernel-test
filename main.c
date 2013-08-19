@@ -5,6 +5,7 @@
 #include "test_memory.h"
 #include "test_variables.h"
 #include "testbed.h"
+#include "embed.h"
 
 int main(int argc, char** argv)
 {

@@ -3,6 +3,7 @@
 #include "embed.h"
 #include "php_phalcon.h"
 #include "kernel/memory.h"
+#include "kernel/array.h"
 #include "test_array.h"
 
 static char* __zend_filename = __FILE__;

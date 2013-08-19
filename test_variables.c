@@ -3,6 +3,7 @@
 #include "embed.h"
 #include "php_phalcon.h"
 #include "kernel/memory.h"
+#include "kernel/variables.h"
 #include "test_variables.h"
 
 void test_phalcon_serialize(void)

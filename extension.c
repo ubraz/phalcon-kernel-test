@@ -1,5 +1,9 @@
 #include <main/php.h>
 #include "php_phalcon.h"
+#include "kernel/main.h"
+#include "kernel/memory.h"
+#include "kernel/framework/orm.h"
+#include "phalcon_exception.h"
 #include "extension.h"
 #include "embed.h"
 

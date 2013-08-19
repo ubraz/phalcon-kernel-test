@@ -15,6 +15,10 @@ ZEND_API void zend_message_dispatcher(long message, void* data TSRMLS_DC);
 ZEND_API void zend_message_dispatcher(long message, const void* data TSRMLS_DC);
 #endif
 
+#if !ZEND_DEBUG
+static inline int _mem_block_check(void *ptr, int silent ZEND_FILE_LINE_DC ZEND_FILE_LINE_ORIG_DC) { return ptr != NULL; }
+#endif
+
 void initialize_embed_wrapper(void);
 void startup_php(const char* func);
 void shutdown_php(void);

@@ -6,10 +6,12 @@
 #include "kernel/array.h"
 #include "test_array.h"
 
+#if ZEND_DEBUG
 static char* __zend_filename = __FILE__;
 static char* __zend_orig_filename = __FILE__;
 static int __zend_lineno = 0;
 static int __zend_orig_lineno = 0;
+#endif
 
 void test_phalcon_array_unshift(void)
 {

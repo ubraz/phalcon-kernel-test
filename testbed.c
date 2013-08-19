@@ -475,13 +475,35 @@ void test_exceptions(void)
 
 void test_unclean_shutdown(void)
 {
-	startup_php(__func__);
-	int old_reporting = EG(error_reporting);
+	size_t initial_memory_usage, final_memory_usage;
+	int old_reporting;
 	zval* z1;
 	zval* z2;
 	zval* z3;
 	zval* z4;
 	zval* z5;
+
+	startup_php(__func__);
+
+	/* We need to measure memory usage before request startup happens
+	 * but after PHP initialization. startup_php() initializes the request
+	 * and this is why we need to shut the request down
+	 */
+	php_request_shutdown(NULL);
+	memclean_called = 0;
+
+	/* Get memory usage before request startup happens */
+	initial_memory_usage = zend_memory_usage(0 TSRMLS_CC);
+
+	/* Perform request startup */
+	SG(options) |= SAPI_OPTION_NO_CHDIR;
+	SG(request_info).argc = 0;
+	SG(request_info).argv = NULL;
+
+	CU_ASSERT_EQUAL(php_request_startup(TSRMLS_C), SUCCESS);
+
+	/**/
+	old_reporting = EG(error_reporting);
 
 	zend_first_try {
 		PHALCON_MM_GROW();
@@ -525,10 +547,17 @@ void test_unclean_shutdown(void)
 	CU_ASSERT_EQUAL(memclean_called, 0);
 	CU_ASSERT_EQUAL(PG(report_memleaks), 1);
 	CU_ASSERT_EQUAL(CG(unclean_shutdown), 1);
+
 	php_request_shutdown(NULL);
 	CU_ASSERT_EQUAL(memclean_called, 1);
 	CU_ASSERT_EQUAL(leaks, 0);
 
+	/* Check memory usage after request shutdown */
+	final_memory_usage = zend_memory_usage(0 TSRMLS_CC);
+	CU_ASSERT_EQUAL(final_memory_usage, initial_memory_usage);
+	/**/
+
+	/* Launch an empty request */
 	SG(options) |= SAPI_OPTION_NO_CHDIR;
 	SG(request_info).argc = 0;
 	SG(request_info).argv = NULL;
